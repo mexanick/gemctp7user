@@ -16,4 +16,3 @@ echo -n "BC0 Lock               :"; mpeek 0x62011014
 echo -n "TTC Single Error Count :"; mpeek 0x62011034;
 echo -n "TTC Double Error Count :"; mpeek 0x62011038;
 echo ""
-
