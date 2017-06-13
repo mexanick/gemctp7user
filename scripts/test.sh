@@ -22,4 +22,3 @@ done
 #done
 
 #echo -e "${ARRAY[1]%%:*} is an extinct animal which likes to ${ARRAY[1]#*:}\n"
-

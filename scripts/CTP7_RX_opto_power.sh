@@ -23,4 +23,3 @@ for i in ${CTP7s[@]}; do
                 ssh root@${i} "rawi2c /dev/i2c-4 r 0x54 206 24" > tmp.txt
                 ./parse_i2c_opto_power.py `cat tmp.txt`
 done
-

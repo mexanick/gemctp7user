@@ -28,4 +28,3 @@ ssh $CTP7_DUT "rawi2c /dev/i2c-2 w 0x54 127 1 > /dev/null; \
 
 	    printf "\n---  CXP2   ---\n"
 	    ./parse_i2c_opto_power.py `ssh $CTP7_DUT "rawi2c /dev/i2c-4 r 0x54 206 24"`
-

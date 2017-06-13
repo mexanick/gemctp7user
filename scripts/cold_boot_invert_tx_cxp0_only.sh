@@ -29,4 +29,3 @@ sh gth_reset.sh
 
 #Print gth status register
 sh gth_status.sh
-

@@ -26,4 +26,3 @@ do
         mpeek $prbs_cnt_addr
 	prbs_sel_addr=$(($prbs_sel_ch0_base_addr + $i * 256))
 done
-

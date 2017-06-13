@@ -25,23 +25,23 @@ data_ch_11=0x48
 data_ch_11_inverted_tx=0x4c
 
 #configure CXP0 GTH channels (inverted TX)
-for i in $(seq 0 1 11)    
-do                         
-                       
+for i in $(seq 0 1 11)
+do
+
         # Apply special config for Ch#11
-        if [ $i -eq 11 ]                
-        then                            
-                        
+        if [ $i -eq 11 ]
+        then
+
                 printf "Applying special inverted RX channel config for GTH CH#11...\n"
-                mpoke $((gth_ctrl_ch0_base_addr+256*11)) $data_ch_11_inverted_tx                   
-        else                                                                           
-                #Apply standard, regular channel config             
-                mpoke $gth_ctrl_addr $data_reg_ch_inverted_tx      
-        fi                                             
-                                                 
+                mpoke $((gth_ctrl_ch0_base_addr+256*11)) $data_ch_11_inverted_tx
+        else
+                #Apply standard, regular channel config
+                mpoke $gth_ctrl_addr $data_reg_ch_inverted_tx
+        fi
+
         #Move on to the next channel
         gth_ctrl_addr=$(($gth_ctrl_addr+256))
-                                             
+
 done
 
 #configure CXP1 and CXP2 GTH channels (not inverted)
