@@ -14,7 +14,7 @@ RETVAL=$?
 
 while [ $RETVAL -ne 0 ]
 do
-    v7load gem_ctp7.bit
+    v7load $GEM_PATH/fw/gem_ctp7.bit
     RETVAL=$?
 done
 
