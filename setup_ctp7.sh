@@ -94,7 +94,7 @@ then
             [nN]* )
                 break;;
             * )
-                break ;;
+                echo "Enter y or n (case insensitive)";;
         esac
     done
 fi
