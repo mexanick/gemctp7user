@@ -6,29 +6,39 @@ if [ -z $1 ]; then
 	exit
 fi
 
-addr=$((0x64000000 + ($1 << 2)))
+#addr=$((0x64000000 + ($1 << 2)))
+addr=$1  # e.g. 0x6502c000 is VFAT.MASK
 
+OH_ADDR=$addr
 ITERATION=0
+OH=0
 ERRORS=0
 TIME_START=`date +%s`
 HEX_NUMBER_RE=^0[xX][0-9a-fA-F]+$
 
-while [ $ITERATION -lt 10 ]; do
+while [ $ITERATION -lt 1000 ]; do
 	VALUE=`awk -F - '{print(("0x"$1) % 0xffff)}' /proc/sys/kernel/random/uuid`
 	#echo "writing $VALUE"
-	mpoke $addr $VALUE
-	READBACK=`mpeek $addr`
+  while [ $OH -lt 1 ]; do
+        OH_ADDR=$(($addr + $OH * 0x40000))
+	mpoke $OH_ADDR $VALUE
+        #echo "OH $OH: writing $VALUE to $OH_ADDR"
+	READBACK=`mpeek $OH_ADDR`
         #echo "read back $READBACK"
 	if ! echo $READBACK | egrep -q $HEX_NUMBER_RE; then
-		echo "ERROR: readback is not a number: $READBACK"
+		echo "ERROR OH $OH: readback is not a number: $READBACK"
 		let ERRORS=ERRORS+1
 	elif [ $VALUE -ne $(( $READBACK )) ]; then
-		echo "ERROR: wrote $VALUE, got $READBACK, which is $(( $READBACK ))"
+		echo "ERROR OH $OH: wrote $VALUE, got $READBACK, which is $(( $READBACK ))"
 		let ERRORS=ERRORS+1
-		echo "exiting on first error (comment this line to not exits and count errors instead)"
-		exit
+#		echo "exiting on first error (comment this line to not exits and count errors instead)"
+#		exit
 	fi
+	let OH=OH+1
+  done
 	let ITERATION=ITERATION+1
+	let OH=0
+	echo "Iteration $ITERATION"
 done
 
 TIME_END=`date +%s`
