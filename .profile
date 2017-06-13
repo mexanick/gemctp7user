@@ -6,8 +6,4 @@ fi
 
 # path set by /etc/profile
 
-export PATH=$GEM_PATH/python/reg_interface:$GEM_PATH/scripts:$GEM_PATH/bin:$PATH
-export PATH=$HOME/bin:$PATH
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GEM_PATH/lib
-
 mesg n
