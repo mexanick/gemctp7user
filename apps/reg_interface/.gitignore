@@ -1,7 +1,0 @@
-# Ignore everything
-*
-# Don't ignore subdirectories
-!*/
-# Don't ignore source files, etc
-!*.gitignore
-!*.py
