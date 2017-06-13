@@ -3,6 +3,7 @@
 export PS1='\h:\w\$ '
 umask 022
 
+export GEM_PATH=/mnt/persistent/gemdaq
 export PATH=$PATH:$GEM_PATH/scripts:$GEM_PATH/bin
 export PATH=$GEM_PATH/python/reg_interface:$PATH
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GEM_PATH/lib
