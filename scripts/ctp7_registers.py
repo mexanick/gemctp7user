@@ -2,8 +2,9 @@ __author__ = 'evka'
 
 import xml.etree.ElementTree as xml
 import textwrap as tw
+import os
 
-ADDRESS_TABLE_TOP = '../doc/address_table/gem_amc_top.xml'
+ADDRESS_TABLE_TOP = '%s/gem_amc_top.xml'%(os.getenv("GEMXMLPATH"))
 TOP_NODE_NAME = 'GEM_AMC'
 
 class Register:
