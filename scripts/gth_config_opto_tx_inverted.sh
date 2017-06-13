@@ -20,19 +20,20 @@ data_reg_ch=0x44
 # Special, Ch#11 config/ctrl value:
 # The same as above, with Bit 3 = 1 (RX polarity inverted)
 
-data_ch_11=0x4c
+data_ch_inverted=0x4c
 
 #configure all GTH channels
-for i in $(seq 0 1 35)
+for i in $(seq 0 1 63)
 do
 
-	# Apply special config for Ch#11
-	if [ $i -eq 11 ]
+	# Apply special inverted RX config for Ch#11, Ch#36, Ch#37
+	if [ $i -eq 11 -o $i -eq 36 -o $i -eq 37 ]
 	then
 
-		printf "Applying special inverted RX channel config for GTH CH#11...\n"
-		mpoke $((gth_ctrl_ch0_base_addr+256*11)) $data_ch_11
+		printf "Applying special inverted RX channel config for GTH CH#$i...\n"
+		mpoke $((gth_ctrl_ch0_base_addr+256*11)) $data_ch_inverted
 	else
+		#printf "Normal config for $i\n"
 		#Apply standard, regular channel config
 		mpoke $gth_ctrl_addr $data_reg_ch
 	fi
@@ -42,4 +43,4 @@ do
 
 done
 
-printf "Done with GTH channel configuration.\n"
+printf "Done with GTH channel configuration (all TX are inverted).\n"
