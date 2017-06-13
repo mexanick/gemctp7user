@@ -1,8 +1,9 @@
 #!/bin/sh
 
 echo "CTP7 Virtex-7 cold boot in progress..."
-
 echo "Configuring reference clocks..."
+
+cd $(dirname "$0")
 
 # First initialize ref clocks before loading the V7 firmware (160 MHz refclk)
 clockinit 320_160 320_160 B1 A1 A1 B1
@@ -14,7 +15,7 @@ RETVAL=$?
 
 while [ $RETVAL -ne 0 ]
 do
-    v7load $HOME/fw/gem_ctp7.bit
+    v7load $GEM_PATH/fw/gem_ctp7.bit
     RETVAL=$?
 done
 
