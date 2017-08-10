@@ -138,6 +138,8 @@ then
     ln -sf librwreg_ctp7.so lib/librwreg.so
     echo "ln -sf libxerces-c.so lib/libxerces-c-3.1.so"
     ln -sf libxerces-c.so lib/libxerces-c-3.1.so
+    echo "ln -sf liblog4cplus.so lib/libxerces-c-3.1.so"
+    ln -sf liblog4cplus.so lib/liblog4cplus-1.1.so.9
 
     echo "wget https://github.com/mexanick/xhal/files/1071017/reg_interface.zip && unzip reg_interface.zip && rm reg_interface.zip"
     wget https://github.com/mexanick/xhal/files/1071017/reg_interface.zip
