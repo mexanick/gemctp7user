@@ -29,7 +29,7 @@ shift $((OPTIND-1))
 
 ctp7host=${1}
 
-ping -q -c 1 $ctp7host >& /dev/null
+ping -q -c 1 ${ctp7host} >& /dev/null
 ctp7up=$?
 if [ $ctp7up != 0 ]
 then
@@ -41,41 +41,54 @@ fi
 if [ -n "${ohfw}" ]
 then
     # echo "creating links for OH firmware version: ${ohfw}"
-    if [ -f "oh_fw/optohybrid_${ohfw}.bit" ]
+    if [ ! -f "oh_fw/optohybrid_${ohfw}.bit" ]
     then
-        echo "ln -sf optohybrid_${ohfw}.bit oh_fw/optohybrid_top.bit"
-        ln -sf optohybrid_${ohfw}.bit oh_fw/optohybrid_top.bit
-    else
-        echo "OH firmware oh_fw/optohybrid_${ohfw}.bit missing"
+        echo "OH firmware oh_fw/optohybrid_${ohfw}.bit downloading"
+        echo "wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/${ohfw}/OH_${ohfw//./_}_GBT.bit -O oh_fw/optohybrid_${ohfw}.bit"
+        wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/${ohfw}/OH_${ohfw//./_}_GBT.bit -O oh_fw/optohybrid_${ohfw}.bit
+    fi
+    echo "ln -sf optohybrid_${ohfw}.bit oh_fw/optohybrid_top.bit"
+    ln -sf optohybrid_${ohfw}.bit oh_fw/optohybrid_top.bit
+
+    if [ ! -f "oh_fw/optohybrid_${ohfw}.mcs" ]
+    then
+        echo "OH firmware oh_fw/optohybrid_${ohfw}.mcs missing, downloading"
+        echo "wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/${ohfw}/OH_${ohfw//./_}_GBT.mcs -O oh_fw/optohybrid_${ohfw}.mcs"
+        wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/${ohfw}/OH_${ohfw//./_}_GBT.mcs -O oh_fw/optohybrid_${ohfw}.mcs
     fi
 
-    if [ -f "oh_fw/optohybrid_${ohfw}.mcs" ]
-    then
-        echo "ln -sf optohybrid_${ohfw}.mcs oh_fw/optohybrid_top.mcs"
-        ln -sf optohybrid_${ohfw}.mcs oh_fw/optohybrid_top.mcs
-    else
-        echo "OH firmware oh_fw/optohybrid_${ohfw}.mcs missing"
-    fi
+    echo "ln -sf optohybrid_${ohfw}.mcs oh_fw/optohybrid_top.mcs"
+    ln -sf optohybrid_${ohfw}.mcs oh_fw/optohybrid_top.mcs
 fi
 
 if [ -n "${ctp7fw}" ]
 then
     # echo "creating links for CTP7 firmware version: ${ctpfw}"
-    if [ -f "fw/gem_ctp7_gem_ctp7_${ctp7fw}.bit" ]
+    if [ ! -f "fw/gem_ctp7_gem_ctp7_v${ctp7fw//./_}_GBT.bit" ]
     then
-        echo "ln -sf gem_ctp7_${ctp7fw}.bit fw/gem_ctp7.bit"
-        ln -sf gem_ctp7_${ctp7fw}.bit fw/gem_ctp7.bit
-    else
-        echo "CTP7 firmware fw/gem_ctp7_${ctp7fw}.bit missing"
+        echo "CTP7 firmware fw/gem_ctp7_v${ctp7fw//./_}_GBT.bit missing, downloading"
+        echo "wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/gem_ctp7_v${ctp7fw//./_}_GBT.bit -O fw/gem_ctp7_v${ctp7fw//./_}_GBT.bit"
+        wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/gem_ctp7_v${ctp7fw//./_}_GBT.bit -O fw/gem_ctp7_v${ctp7fw//./_}_GBT.bit
     fi
 
-    if [ -f "xml/gem_amc_top_${ctp7fw}.xml" ]
+    echo "ln -sf gem_ctp7_v${ctp7fw//./_}_GBT.bit fw/gem_ctp7.bit"
+    ln -sf gem_ctp7_v${ctp7fw//./_}_GBT.bit fw/gem_ctp7.bit
+
+    if [ ! -f "xml/gem_amc_top_${ctp7fw//./_}.xml" ]
     then
-        echo "ln -sf gem_amc_top_${ctp7fw}.xml xml/gem_amc_top.xml"
-        ln -sf gem_amc_top_${ctp7fw}.xml xml/gem_amc_top.xml
-    else
-        echo "CTP7 firmware xml/gem_amc_top_${ctp7fw}.xml missing"
+        echo "CTP7 firmware xml/gem_amc_top_${ctp7fw//./_}.xml missing, downloading"
+        echo "wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/address_table_v${ctp7fw//./_}_GBT.zip"
+        wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/address_table_v${ctp7fw//./_}_GBT.zip
+        echo "unzip address_table_v${ctp7fw//./_}_GBT.zip"
+        unzip address_table_v${ctp7fw//./_}_GBT.zip
+        echo "cp address_table_v${ctp7fw//./_}_GBT/gem_amc_top.xml xml/gem_amc_v${ctp7fw//./_}.xml"
+        cp address_table_v${ctp7fw//./_}_GBT/gem_amc_top.xml xml/gem_amc_v${ctp7fw//./_}.xml
+        echo "rm -rf address_table_v${ctp7fw//./_}_GBT"
+        rm -rf address_table_v${ctp7fw//./_}_GBT
     fi
+
+    echo "ln -sf gem_amc_top_${ctp7fw//./_}.xml xml/gem_amc_top.xml"
+    ln -sf gem_amc_top_${ctp7fw//./_}.xml xml/gem_amc_top.xml
 fi
 
 # create new CTP7 user if requested
@@ -86,10 +99,10 @@ then
     do
         case $create in
             [yY]* )
-                echo "ssh root@$ctp7host adduser ${newuser} -h /mnt/persistent/${newuser}";
-                ssh root@$ctp7host adduser ${newuser} -h /mnt/persistent/${newuser};
-                echo "rsync -aXch --progress --partial --links .profile .bashrc .viminfo .vimrc .inputrc ${newuser}@$ctp7host:~/";
-                rsync -aXch --progress --partial --links .profile .bashrc .viminfo .vimrc .inputrc ${newuser}@$ctp7host:~/;
+                echo "ssh root@${ctp7host} /usr/sbin/adduser ${newuser} -h /mnt/persistent/${newuser}";
+                ssh root@${ctp7host} /usr/sbin/adduser ${newuser} -h /mnt/persistent/${newuser};
+                echo "rsync -aXch --progress --partial --links .profile .bashrc .viminfo .vimrc .inputrc ${newuser}@${ctp7host}:~/";
+                rsync -aXch --progress --partial --links .profile .bashrc .viminfo .vimrc .inputrc ${newuser}@${ctp7host}:~/;
                 break;;
             [nN]* )
                 break;;
@@ -103,28 +116,41 @@ fi
 if [ -n "${update}" ]
 then
     echo "Creating/updating CTP7 gemdaq directory structure"
-    echo "ssh root@$ctp7host mkdir -p /mnt/persistent/gemdaq"
-    ssh root@$ctp7host mkdir -p /mnt/persistent/gemdaq
-    echo "Fetching binaries, firmware and libraries"
-    echo "cd ./bin && wget https://github.com/mexanick/xhal/releases/download/v2.0.0/ipbus && cd -"
-    cd ./bin && wget https://github.com/mexanick/xhal/releases/download/v2.0.0/ipbus && cd -
-    echo "cd ./lib && wget https://github.com/mexanick/xhal/releases/download/v2.0.0/liblog4cplus.so && wget https://github.com/mexanick/xhal/releases/download/v2.0.0/libxhal_ctp7.so && wget https://github.com/mexanick/xhal/releases/download/v2.0.0/libxerces-c.so && wget https://github.com/mexanick/xhal/releases/download/v2.0.0/librwreg_ctp7.so && wget https://github.com/mexanick/xhal/releases/download/v2.0.0/liblmdb.so && ln -sf librwreg_ctp7.so librwreg.so && ln -sf libxerces-c.so libxerces-c-3.1.so && cd -"
-    cd ./lib && wget https://github.com/mexanick/xhal/releases/download/v2.0.0/liblog4cplus.so && wget https://github.com/mexanick/xhal/releases/download/v2.0.0/libxhal_ctp7.so && wget https://github.com/mexanick/xhal/releases/download/v2.0.0/libxerces-c.so && wget https://github.com/mexanick/xhal/releases/download/v2.0.0/librwreg_ctp7.so && wget https://github.com/mexanick/xhal/releases/download/v2.0.0/liblmdb.so && ln -sf librwreg_ctp7.so librwreg.so && ln -sf libxerces-c.so libxerces-c-3.1.so && cd -
-    echo "cd ./python && wget https://github.com/mexanick/xhal/files/1071017/reg_interface.zip && unzip reg_interface.zip && rm reg_interface.zip && cd -"
-    cd ./python && wget https://github.com/mexanick/xhal/files/1071017/reg_interface.zip && unzip reg_interface.zip && rm reg_interface.zip && cd -
-    echo "cd ./fw && wget https://github.com/evka85/GEM_AMC/releases/download/v1.9.4/gem_ctp7_v1_9_4_GBT.bit && ln -sf gem_ctp7_v1_9_4_GBT.bit gem_ctp7.bit && cd -"
-    cd ./fw && wget https://github.com/evka85/GEM_AMC/releases/download/v1.9.4/gem_ctp7_v1_9_4_GBT.bit && ln -sf gem_ctp7_v1_9_4_GBT.bit gem_ctp7.bit && cd -
-    echo "cd ./oh_fw && wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/2.2.D.FB/optohybrid_top.bit -O optohybrid_2.2.D.FB.bit && ln -sf optohybrid_2.2.D.FB.bit optohybrid_top.bit && wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/2.2.D.FB/optohybrid_top.mcs -O optohybrid_2.2.D.FB.mcs && ln -sf optohybrid_2.2.D.FB.mcs optohybrid_top.mcs && cd -"
-    cd ./oh_fw && wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/2.2.D.FB/optohybrid_top.bit -O optohybrid_2.2.D.FB.bit && ln -sf optohybrid_2.2.D.FB.bit optohybrid_top.bit && wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/2.2.D.FB/optohybrid_top.mcs -O optohybrid_2.2.D.FB.mcs && ln -sf optohybrid_2.2.D.FB.mcs optohybrid_top.mcs && cd -
-    echo "cd ./xml && wget https://github.com/evka85/GEM_AMC/releases/download/v1.9.4/address_table_v1_9_4.zip && unzip address_table_v1_9_4.zip && cp address_table_v1_9_4/gem_amc_top.xml gem_amc_v1_9_4.xml && rm -rf address_table* && ln -sf gem_amc_v1_9_4.xml gem_amc_top.xml && cd -"
-    cd ./xml && wget https://github.com/evka85/GEM_AMC/releases/download/v1.9.4/address_table_v1_9_4.zip && unzip address_table_v1_9_4.zip && cp address_table_v1_9_4/gem_amc_top.xml gem_amc_v1_9_4.xml && rm -rf address_table* && ln -sf gem_amc_v1_9_4.xml gem_amc_top.xml && cd -
-    echo "rsync -aXch --progress --partial --links bin fw lib oh_fw scripts xml python root@$ctp7host:/mnt/persistent/gemdaq/"
-    rsync -aXch --progress --partial --links bin fw lib oh_fw scripts xml python root@$ctp7host:/mnt/persistent/gemdaq/
+    echo "ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq"
+    ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq
+
+    echo "Fetching binaries and libraries"
+    echo "wget https://github.com/mexanick/xhal/releases/download/v2.0.0/ipbus -O bin/ipbus"
+    wget https://github.com/mexanick/xhal/releases/download/v2.0.0/ipbus -O bin/ipbus
+
+    echo "wget https://github.com/mexanick/xhal/releases/download/v2.0.0/liblog4cplus.so  -O lib/liblog4cplus.so"
+    wget https://github.com/mexanick/xhal/releases/download/v2.0.0/liblog4cplus.so  -O lib/liblog4cplus.so
+    echo "wget https://github.com/mexanick/xhal/releases/download/v2.0.0/libxhal_ctp7.so  -O lib/libxhal_ctp7.so"
+    wget https://github.com/mexanick/xhal/releases/download/v2.0.0/libxhal_ctp7.so  -O lib/libxhal_ctp7.so
+    echo "wget https://github.com/mexanick/xhal/releases/download/v2.0.0/libxerces-c.so   -O lib/libxerces-c.so"
+    wget https://github.com/mexanick/xhal/releases/download/v2.0.0/libxerces-c.so   -O lib/libxerces-c.so
+    echo "wget https://github.com/mexanick/xhal/releases/download/v2.0.0/librwreg_ctp7.so -O lib/librwreg_ctp7.so"
+    wget https://github.com/mexanick/xhal/releases/download/v2.0.0/librwreg_ctp7.so -O lib/librwreg_ctp7.so
+    echo "wget https://github.com/mexanick/xhal/releases/download/v2.0.0/liblmdb.so       -O lib/liblmdb.so"
+    wget https://github.com/mexanick/xhal/releases/download/v2.0.0/liblmdb.so       -O lib/liblmdb.so
+
+    echo "ln -sf librwreg_ctp7.so lib/librwreg.so"
+    ln -sf librwreg_ctp7.so lib/librwreg.so
+    echo "ln -sf libxerces-c.so lib/libxerces-c-3.1.so"
+    ln -sf libxerces-c.so lib/libxerces-c-3.1.so
+
+    echo "wget https://github.com/mexanick/xhal/files/1071017/reg_interface.zip && unzip reg_interface.zip && rm reg_interface.zip"
+    wget https://github.com/mexanick/xhal/files/1071017/reg_interface.zip
+    unzip reg_interface.zip -d python/
+    rm reg_interface.zip
+
+    echo "rsync -ach --progress --partial --links bin fw lib oh_fw scripts xml python root@${ctp7host}:/mnt/persistent/gemdaq/"
+    rsync -ach --progress --partial --links bin fw lib oh_fw scripts xml python root@${ctp7host}:/mnt/persistent/gemdaq/
     echo "Clearing folders"
-    rm ./bin/*.*
-    rm ./lib/*.*
-    rm ./fw/*.*
-    rm ./oh_fw/*.*
-    rm ./python/reg_interface/*.*
-    rm ./xml/*.*
+    rm ./bin/*
+    rm ./lib/*
+    rm ./fw/*
+    rm ./oh_fw/*
+    rm ./python/reg_interface/*
+    rm ./xml/*
 fi
