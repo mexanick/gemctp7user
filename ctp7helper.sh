@@ -1,19 +1,18 @@
 #!/bin/sh
 
-helpstring="Usage: $0 [-c Check CTP7 fw version] [-r Recover CTP7] [-f Reload CTP7 firmware] CTP7 hostname"
+helpstring="Usage: $0 [-c Check CTP7 fw version] [-f Reload CTP7 firmware] [-r Recover CTP7] [-u CTP7 Uptime] CTP7 hostname"
 
-while getopts "cfrh" opts
+while getopts "cfruh" opts
 do
     case $opts in
         c)
-            echo "selected check ctp7 fw"
             checkctp7fw="1";;
         f)
-            echo "selected reload ctp7 fw"
             reloadctp7fw="1";;
         r)
-            echo "selected recover ctp7"
             recoverctp7="1";;
+        u)
+            checkuptime="1";;
         h)
             echo >&2 ${helpstring}
             exit 1;;
@@ -28,11 +27,6 @@ done
 
 shift $((OPTIND-1))
 ctp7host=${1}
-
-echo ctp7host     ${ctp7host}
-echo checkctp7fw  ${checkctp7fw}
-echo reloadctp7fw ${reloadctp7fw}
-echo recoverctp7  ${recoverctp7}
 
 ping -q -c 1 ${ctp7host} >& /dev/null
 ctp7up=$?
@@ -57,17 +51,17 @@ then
     TASK_DESCRIPTION="Checking the CTP7 firmware version"
     ACTION_MESSAGE="Are you sure you want to check the CTP7 firmware version?"
     COMMAND="ssh -qt texas@${ctp7host} \"ls -l /mnt/persistent/gemdaq/fw/gem_ctp7.bit && ls -l /mnt/persistent/gemdaq/xml/gem_amc_top.xml\""
+elif [ -n "${checkuptime}" ]
+then
+    TASK_DESCRIPTION="Checking the CTP7 uptime"
+    ACTION_MESSAGE="Are you sure you want to check the CTP7 uptime?"
+    COMMAND="ssh -qt texas@${ctp7host} \"uptime\""
 fi
 
-echo TASK_DESCRIPTION $TASK_DESCRIPTION
-echo ACTION_MESSAGE   $ACTION_MESSAGE
-echo COMMAND          $COMMAND
-
-# Reload CTP7 firmware
-## turn this into a function to always prompt, regardless of the command to be executed
 if [ -n "${COMMAND}" ]
 then
-    read -p "${TASK_DESCRIPTION}: (y|n) : " create
+    echo "${TASK_DESCRIPTION} (make sure you post an elog stating what command you executed and any output)"
+    read -p "${ACTION_MESSAGE}: (y|n) : " create
     while true
     do
         case $create in
