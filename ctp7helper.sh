@@ -66,7 +66,6 @@ then
     do
         case $create in
             [yY]* )
-                echo ${ACTION_MESSAGE}
                 eval ${COMMAND}
                 break;;
             [nN]* )
