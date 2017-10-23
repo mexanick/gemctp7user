@@ -138,7 +138,7 @@ then
     ln -sf librwreg_ctp7.so lib/librwreg.so
     echo "ln -sf libxerces-c.so lib/libxerces-c-3.1.so"
     ln -sf libxerces-c.so lib/libxerces-c-3.1.so
-    echo "ln -sf liblog4cplus.so lib/libxerces-c-3.1.so"
+    echo "ln -sf liblog4cplus.so lib/liblog4cplus-1.1.so.9"
     ln -sf liblog4cplus.so lib/liblog4cplus-1.1.so.9
 
     echo "wget https://github.com/cms-gem-daq-project/xhal/files/1071017/reg_interface.zip && unzip reg_interface.zip && rm reg_interface.zip"
@@ -146,9 +146,14 @@ then
     unzip reg_interface.zip -d python/
     rm reg_interface.zip
 
+    find . -type d -print0 | xargs -0 -n1 chmod a+rx
+    find . -type f -print0 | xargs -0 -n1 chmod a+r
+    find bin -type f -print0 | xargs -0 -n1 chmod a+rx
+    find lib -type f -print0 | xargs -0 -n1 chmod a+rx
+
     echo "rsync -ach --progress --partial --links bin fw lib oh_fw scripts xml python root@${ctp7host}:/mnt/persistent/gemdaq/"
     rsync -ach --progress --partial --links bin fw lib oh_fw scripts xml python root@${ctp7host}:/mnt/persistent/gemdaq/
-    echo "Clearing folders"
+    echo "Cleaning local temp folders"
     rm ./bin/*
     rm ./lib/*
     rm ./fw/*
