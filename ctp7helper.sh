@@ -40,12 +40,18 @@ if [ -n "${reloadctp7fw}" ]
 then
     TASK_DESCRIPTION="Reloading the CTP7 firmware"
     ACTION_MESSAGE="Are you sure you want to reload the CTP7 firmware?"
-    COMMAND="ssh texas@${ctp7host} cold_boot.sh"
+    COMMAND="ssh -qt texas@${ctp7host} <<-ENDCMD
+bash -c -i \"'cold_boot.sh'\"
+ENDCMD
+"
 elif [ -n "${recoverctp7}" ]
 then
     TASK_DESCRIPTION="Recover the CTP7"
     ACTION_MESSAGE="Are you sure you want to recover the CTP7?"
-    COMMAND="ssh texas@${ctp7host} recover.sh"
+    COMMAND="ssh -qt texas@${ctp7host} <<-ENDCMD
+bash -c -i \"'recover.sh'\"
+ENDCMD
+"
 elif [ -n "${checkctp7fw}" ]
 then
     TASK_DESCRIPTION="Checking the CTP7 firmware version"
