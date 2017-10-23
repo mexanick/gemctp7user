@@ -29,11 +29,6 @@ shift $((OPTIND-1))
 
 ctp7host=${1}
 
-echo ctp7fw ${ctp7fw}
-echo ohfw ${ohfw}
-echo newuser ${newuser}
-echo update ${update}
-
 ping -q -c 1 ${ctp7host} >& /dev/null
 ctp7up=$?
 if [ $ctp7up != 0 ]
@@ -158,7 +153,7 @@ then
 
     echo "rsync -ach --progress --partial --links bin fw lib oh_fw scripts xml python root@${ctp7host}:/mnt/persistent/gemdaq/"
     rsync -ach --progress --partial --links bin fw lib oh_fw scripts xml python root@${ctp7host}:/mnt/persistent/gemdaq/
-    echo "Clearing folders"
+    echo "Cleaning local temp folders"
     rm ./bin/*
     rm ./lib/*
     rm ./fw/*
