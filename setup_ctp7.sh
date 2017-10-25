@@ -1,8 +1,8 @@
 #!/bin/sh
 
-helpstring="Usage: $0 [-o OptoHybrid fw version] [-c CTP7 fw version] [-a CTP7 user account to create] [-u Update CTP7 libs/bins/fw images] CTP7 hostname"
+helpstring="Usage: $0 [-o OptoHybrid fw version] [-c CTP7 fw version] [-x XHAL release version] [-a CTP7 user account to create] [-u Update CTP7 libs/bins/fw images] CTP7 hostname"
 
-while getopts "a:c:o:uh" opts
+while getopts "a:c:o:x:uh" opts
 do
     case $opts in
         c)
@@ -13,6 +13,8 @@ do
             newuser="$OPTARG";;
         u)
             update="1";;
+        x)
+            xhaltag="$OPTARG";;
         h)
             echo >&2 ${helpstring}
             exit 1;;
@@ -119,32 +121,43 @@ then
     echo "ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq"
     ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq
 
-    echo "Fetching binaries and libraries"
-    echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/v2.0.0/ipbus -O bin/ipbus"
-    wget https://github.com/cms-gem-daq-project/xhal/releases/download/v2.0.0/ipbus -O bin/ipbus
+    if [ -n ${xhaltag} ]
+    then
+        echo "Fetching xhal binaries and libraries"
+        res=$(curl -s --head https://github.com/cms-gem-daq-project/xhal/releases/tag/${xhaltag} | head -n 1 | grep "HTTP/1.[01] [23]..")
+        if [ -n "${res}" ]
+        then
+            echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/ipbus -O bin/ipbus"
+            wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/ipbus -O bin/ipbus
 
-    echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/v2.0.0/liblog4cplus.so  -O lib/liblog4cplus.so"
-    wget https://github.com/cms-gem-daq-project/xhal/releases/download/v2.0.0/liblog4cplus.so  -O lib/liblog4cplus.so
-    echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/v2.0.0/libxhal_ctp7.so  -O lib/libxhal_ctp7.so"
-    wget https://github.com/cms-gem-daq-project/xhal/releases/download/v2.0.0/libxhal_ctp7.so  -O lib/libxhal_ctp7.so
-    echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/v2.0.0/libxerces-c.so   -O lib/libxerces-c.so"
-    wget https://github.com/cms-gem-daq-project/xhal/releases/download/v2.0.0/libxerces-c.so   -O lib/libxerces-c.so
-    echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/v2.0.0/librwreg_ctp7.so -O lib/librwreg_ctp7.so"
-    wget https://github.com/cms-gem-daq-project/xhal/releases/download/v2.0.0/librwreg_ctp7.so -O lib/librwreg_ctp7.so
-    echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/v2.0.0/liblmdb.so       -O lib/liblmdb.so"
-    wget https://github.com/cms-gem-daq-project/xhal/releases/download/v2.0.0/liblmdb.so       -O lib/liblmdb.so
+            echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/liblog4cplus.so  -O lib/liblog4cplus.so"
+            wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/liblog4cplus.so  -O lib/liblog4cplus.so
+            echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/libxhal_ctp7.so  -O lib/libxhal_ctp7.so"
+            wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/libxhal_ctp7.so  -O lib/libxhal_ctp7.so
+            echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/libxerces-c.so   -O lib/libxerces-c.so"
+            wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/libxerces-c.so   -O lib/libxerces-c.so
+            echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/librwreg_ctp7.so -O lib/librwreg_ctp7.so"
+            wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/librwreg_ctp7.so -O lib/librwreg_ctp7.so
+            echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/liblmdb.so       -O lib/liblmdb.so"
+            wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/liblmdb.so       -O lib/liblmdb.so
 
-    echo "ln -sf librwreg_ctp7.so lib/librwreg.so"
-    ln -sf librwreg_ctp7.so lib/librwreg.so
-    echo "ln -sf libxerces-c.so lib/libxerces-c-3.1.so"
-    ln -sf libxerces-c.so lib/libxerces-c-3.1.so
-    echo "ln -sf liblog4cplus.so lib/liblog4cplus-1.1.so.9"
-    ln -sf liblog4cplus.so lib/liblog4cplus-1.1.so.9
+            echo "ln -sf librwreg_ctp7.so lib/librwreg.so"
+            ln -sf librwreg_ctp7.so lib/librwreg.so
+            echo "ln -sf libxerces-c.so lib/libxerces-c-3.1.so"
+            ln -sf libxerces-c.so lib/libxerces-c-3.1.so
+            echo "ln -sf liblog4cplus.so lib/liblog4cplus-1.1.so.9"
+            ln -sf liblog4cplus.so lib/liblog4cplus-1.1.so.9
+        else
+            echo "Unable to find specified tag ${xhaltag} in list of xhal releases (https://github.com/cms-gem-daq-project/xhal/releases)"
+            echo "Please verify that the specified tag exists"
+            exit
+        fi
 
-    echo "wget https://github.com/cms-gem-daq-project/xhal/files/1071017/reg_interface.zip && unzip reg_interface.zip && rm reg_interface.zip"
-    wget https://github.com/cms-gem-daq-project/xhal/files/1071017/reg_interface.zip
-    unzip reg_interface.zip -d python/
-    rm reg_interface.zip
+        echo "wget https://github.com/cms-gem-daq-project/xhal/files/1071017/reg_interface.zip && unzip reg_interface.zip && rm reg_interface.zip"
+        wget https://github.com/cms-gem-daq-project/xhal/files/1071017/reg_interface.zip
+        unzip reg_interface.zip -d python/
+        rm reg_interface.zip
+    fi
 
     find . -type d -print0 | xargs -0 -n1 chmod a+rx
     find . -type f -print0 | xargs -0 -n1 chmod a+r
