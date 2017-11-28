@@ -1,6 +1,15 @@
 #!/bin/sh
 
-helpstring="Usage: $0 [-o OptoHybrid fw version] [-c CTP7 fw version] [-x XHAL release version] [-a CTP7 user account to create] [-u Update CTP7 libs/bins/fw images] CTP7 hostname"
+helpstring="Usage: $0 [options] <CTP7 hostname>
+  Options:
+    -o OptoHybrid fw version
+    -c CTP7 fw version
+    -x XHAL release version
+    -a CTP7 user account to create
+    -u Update CTP7 libs/bins/fw images
+
+Plese report bugs to
+https://github.com/cms-gem-daq-project/gemctp7user"
 
 while getopts "a:c:o:x:uh" opts
 do
