@@ -12,10 +12,10 @@ echo ./cold_boot.sh
 
 echo "Restarting the ipbus service"
 killall ipbus
-NOW=$(date +"%H-%M-%m-%d-%Y")
-echo "nohup ipbus 2>&1 > ${HOME}/logs/ipbus_${NOW}.log"
-nohup ipbus 2>&1 > ${HOME}/logs/ipbus_${NOW}.log
+sleep(1)
+./restart_ipbus.sh
 
 echo "Restarting the RPC service"
 killall rpcsvc
+sleep(1)
 rpcsvc

@@ -1,6 +1,15 @@
 #!/bin/sh
 
-helpstring="Usage: $0 [-c Check CTP7 fw version] [-f Reload CTP7 firmware] [-r Recover CTP7] [-u CTP7 Uptime] CTP7 hostname"
+helpstring="Usage: $0 [options] <CTP7 hostname>
+  Options:
+    -c Check CTP7 fw version
+    -f Reload CTP7 firmware
+    -i Restart IPBus
+    -r Recover CTP7
+    -u CTP7 Uptime
+
+Plese report bugs to
+https://github.com/cms-gem-daq-project/gemctp7user"
 
 while getopts "cfruh" opts
 do
@@ -9,6 +18,8 @@ do
             checkctp7fw="1";;
         f)
             reloadctp7fw="1";;
+        i)
+            restartipbus="1";;
         r)
             recoverctp7="1";;
         u)
@@ -46,6 +57,11 @@ then
     TASK_DESCRIPTION="Recover the CTP7"
     ACTION_MESSAGE="Are you sure you want to recover the CTP7?"
     COMMAND="ssh -qt texas@${ctp7host} \"sh -lc 'recover.sh'\""
+elif [ -n "${restartipbus}" ]
+then
+    TASK_DESCRIPTION="Restart the IPBus service on the CTP7"
+    ACTION_MESSAGE="Are you sure you want to restart IPBus?"
+    COMMAND="ssh -qt texas@${ctp7host} \"sh -lc 'restart_ipbus.sh'\""
 elif [ -n "${checkctp7fw}" ]
 then
     TASK_DESCRIPTION="Checking the CTP7 firmware version"
