@@ -130,7 +130,7 @@ then
     echo "ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq"
     ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq
 
-    if [ -n ${xhaltag} ]
+    if [ -n "${xhaltag}" ]
     then
         echo "Fetching xhal binaries and libraries"
         res=$(curl -s --head https://github.com/cms-gem-daq-project/xhal/releases/tag/${xhaltag} | head -n 1 | grep "HTTP/1.[01] [23]..")
