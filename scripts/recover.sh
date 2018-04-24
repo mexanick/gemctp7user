@@ -12,10 +12,10 @@ echo ./cold_boot.sh
 
 echo "Restarting the ipbus service"
 killall ipbus
-sleep(1)
+sleep 1
 ./restart_ipbus.sh
 
 echo "Restarting the RPC service"
 killall rpcsvc
-sleep(1)
+sleep 1
 rpcsvc
