@@ -22,7 +22,7 @@ usage() {
 } 
 
 # Check inputs
-if [ -z ${5+x} ] || [ -z ${4+x} ] || [ -z ${3+x} ] || [ -z ${2+x} ] || [ -z ${1+x} ]
+if [ -z ${5+x} ] 
 then
     usage
 fi
@@ -69,23 +69,23 @@ for link in 0 1 2 3 4 5 6 7 8 9 10 11
 do
     if [ $(( ($OHMASK>>$link) & 0x1 )) -eq 1 ]; then
         echo "Programming link $link"
-        python gbt.py $link 0 config $FILE_GBT0
-        python gbt.py $link 1 config $FILE_GBT1
-        python gbt.py $link 2 config $FILE_GBT2
+        gbt.py $link 0 config $FILE_GBT0
+        gbt.py $link 1 config $FILE_GBT1
+        gbt.py $link 2 config $FILE_GBT2
     else
         echo "nothing to be done for link $link"
     fi
 done
 
 # Issue an sca reset
-python sca.py $OHMASK r
+sca.py $OHMASK r
 
 # Program the FPGA's
-python sca.py $OHMASK program-fpga bit $FILE_FW
+sca.py $OHMASK program-fpga bit $FILE_FW
 
-if [[ $FILE_FW = *".B"* ]]; then
+if [[ $FILE_FW =~ (([0-9a-fA-F]+)\.){3}([Bb]\.) ]]; then
     # OHv3b
-    python reg_interface --execute="write GEM_AMC.GEM_SYSTEM.VFAT3.USE_OH_V3B_MAPPING 1"
+    reg_interface --execute="write GEM_AMC.GEM_SYSTEM.VFAT3.USE_OH_V3B_MAPPING 1"
 else
     # OHv3a
     # Necessary for FW versions pre-dating v3.1.0.B
@@ -93,21 +93,21 @@ else
     #do
     #    if [ $(( ($OHMASK>>$link) & 0x1 )) -eq 1 ]; then
     #        echo "Setting OHv3b SBIT timing for link $link"
-    #        python configure_oh_for_gebv3b_short.py -g$link
-    #        python configure_oh_for_ohv3b.py -g$link
+    #        configure_oh_for_gebv3b_short.py -g$link
+    #        configure_oh_for_ohv3b.py -g$link
     #    else
     #        echo "nothing to be done for link $link"
     #    fi
     #done
 
-    python reg_interface --execute="write GEM_AMC.GEM_SYSTEM.VFAT3.USE_OH_V3B_MAPPING 0"
+    reg_interface --execute="write GEM_AMC.GEM_SYSTEM.VFAT3.USE_OH_V3B_MAPPING 0"
 fi
 
 # Link reset
-python reg_interface --execute="write GEM_AMC.GEM_SYSTEM.CTRL.LINK_RESET 1"
+reg_interface --execute="write GEM_AMC.GEM_SYSTEM.CTRL.LINK_RESET 1"
 
 # TU invert (forget for which FW versions this is required...)
-#python reg_interface --execute="write GEM_AMC.OH.OH0.FPGA.TRIG.CTRL.VFAT17_TU_INVERT 0x6"
+#reg_interface --execute="write GEM_AMC.OH.OH0.FPGA.TRIG.CTRL.VFAT17_TU_INVERT 0x6"
 
 # Return to original directory
 cd $DIR_ORIG
