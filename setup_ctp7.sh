@@ -4,6 +4,7 @@ helpstring="Usage: $0 [options] <CTP7 hostname>
   Options:
     -o OptoHybrid fw version
     -c CTP7 fw version
+    -l Number of OH links supported in the CTP7 fw
     -x XHAL release version
     -a CTP7 user account to create
     -u Update CTP7 libs/bins/fw images
@@ -11,11 +12,13 @@ helpstring="Usage: $0 [options] <CTP7 hostname>
 Plese report bugs to
 https://github.com/cms-gem-daq-project/gemctp7user"
 
-while getopts "a:c:o:x:uh" opts
+while getopts "a:c:l:o:x:uh" opts
 do
     case $opts in
         c)
             ctp7fw="$OPTARG";;
+        l) 
+            nlinks="$OPTARG";;
         o)
             ohfw="$OPTARG";;
         a)
@@ -52,54 +55,80 @@ fi
 if [ -n "${ohfw}" ]
 then
     # echo "creating links for OH firmware version: ${ohfw}"
-    if [ ! -f "oh_fw/optohybrid_${ohfw}.bit" ]
-    then
-        echo "OH firmware oh_fw/optohybrid_${ohfw}.bit downloading"
-        echo "wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/${ohfw}/OH_${ohfw//./_}_GBT.bit -O oh_fw/optohybrid_${ohfw}.bit"
-        wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/${ohfw}/OH_${ohfw//./_}_GBT.bit -O oh_fw/optohybrid_${ohfw}.bit
-    fi
-    echo "ln -sf optohybrid_${ohfw}.bit oh_fw/optohybrid_top.bit"
-    ln -sf optohybrid_${ohfw}.bit oh_fw/optohybrid_top.bit
+    if [[ ${ohfw} = *"3."* ]]
+    then 
+        echo "Downloading V3 firmware with tag ${ohfw}"
+        echo "wget https://github.com/cms-gem-daq-project/OptoHybridv3/releases/download/${ohfw}/OH_${ohfw}.tar.gz"
+        wget https://github.com/cms-gem-daq-project/OptoHybridv3/releases/download/${ohfw}/OH_${ohfw}.tar.gz 
+        echo "Untar and copy firmware files and xml address table to relevant locations"
+        echo "tar -xvf OH_${ohfw}.tar.gz"
+        tar -xvf OH_${ohfw}.tar.gz
+        echo "cp OH_${ohfw}/OH_${ohfw}.mcs oh_fw/optohybrid_${ohfw}.mcs"
+        cp OH_${ohfw}/OH_${ohfw}.mcs oh_fw/optohybrid_${ohfw}.mcs
+        echo "cp OH_${ohfw}/OH_${ohfw}.bit oh_fw/optohybrid_${ohfw}.bit"
+        cp OH_${ohfw}/OH_${ohfw}.bit oh_fw/optohybrid_${ohfw}.bit
+        echo "cp OH_${ohfw}/optohybrid_registers.xml xml/optohybrid_registers_${ohfw}.xml"
+        cp OH_${ohfw}/optohybrid_registers.xml xml/optohybrid_registers_${ohfw}.xml
+        echo "ln -sf oh_fw/optohybrid_${ohfw}.bit oh_fw/optohybrid_top.bit"
+        ln -sf oh_fw/optohybrid_${ohfw}.bit oh_fw/optohybrid_top.bit
+        echo "ln -sf oh_fw/optohybrid_${ohfw}.mcs oh_fw/optohybrid_top.mcs"
+        ln -sf oh_fw/optohybrid_${ohfw}.mcs oh_fw/optohybrid_top.mcs
+        echo "ln -sf xml/optohybrid_registers_${ohfw}.mcs oh_fw/optohybrid_registers.xml"
+        ln -sf xml/optohybrid_registers_${ohfw}.mcs oh_fw/optohybrid_registers.xml
+        echo "rm -rf OH_${ohfw}/"
+        rm -rf OH_${ohfw}/
+        echo "rm -rf OH_${ohfw}.tar.gz"
+        rm -rf OH_${ohfw}.tar.gz
+    else
+        if [ ! -f "oh_fw/optohybrid_${ohfw}.bit" ]
+        then
+            echo "OH firmware oh_fw/optohybrid_${ohfw}.bit downloading"
+            echo "wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/${ohfw}/OH_${ohfw//./_}_GBT.bit -O oh_fw/optohybrid_${ohfw}.bit"
+            wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/${ohfw}/OH_${ohfw//./_}_GBT.bit -O oh_fw/optohybrid_${ohfw}.bit
+        fi
+        echo "ln -sf optohybrid_${ohfw}.bit oh_fw/optohybrid_top.bit"
+        ln -sf optohybrid_${ohfw}.bit oh_fw/optohybrid_top.bit
 
-    if [ ! -f "oh_fw/optohybrid_${ohfw}.mcs" ]
-    then
-        echo "OH firmware oh_fw/optohybrid_${ohfw}.mcs missing, downloading"
-        echo "wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/${ohfw}/OH_${ohfw//./_}_GBT.mcs -O oh_fw/optohybrid_${ohfw}.mcs"
-        wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/${ohfw}/OH_${ohfw//./_}_GBT.mcs -O oh_fw/optohybrid_${ohfw}.mcs
-    fi
+        if [ ! -f "oh_fw/optohybrid_${ohfw}.mcs" ]
+        then
+            echo "OH firmware oh_fw/optohybrid_${ohfw}.mcs missing, downloading"
+            echo "wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/${ohfw}/OH_${ohfw//./_}_GBT.mcs -O oh_fw/optohybrid_${ohfw}.mcs"
+            wget https://github.com/thomaslenzi/OptoHybridv2/releases/download/${ohfw}/OH_${ohfw//./_}_GBT.mcs -O oh_fw/optohybrid_${ohfw}.mcs
+        fi
 
-    echo "ln -sf optohybrid_${ohfw}.mcs oh_fw/optohybrid_top.mcs"
-    ln -sf optohybrid_${ohfw}.mcs oh_fw/optohybrid_top.mcs
+        echo "ln -sf optohybrid_${ohfw}.mcs oh_fw/optohybrid_top.mcs"
+        ln -sf optohybrid_${ohfw}.mcs oh_fw/optohybrid_top.mcs
+    fi
 fi
 
 if [ -n "${ctp7fw}" ]
 then
     # echo "creating links for CTP7 firmware version: ${ctpfw}"
-    if [ ! -f "fw/gem_ctp7_gem_ctp7_v${ctp7fw//./_}_GBT.bit" ]
+    if [ ! -f "fw/gem_ctp7_gem_ctp7_v${ctp7fw//./_}.bit" ]
     then
-        echo "CTP7 firmware fw/gem_ctp7_v${ctp7fw//./_}_GBT.bit missing, downloading"
-        echo "wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/gem_ctp7_v${ctp7fw//./_}_GBT.bit -O fw/gem_ctp7_v${ctp7fw//./_}_GBT.bit"
-        wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/gem_ctp7_v${ctp7fw//./_}_GBT.bit -O fw/gem_ctp7_v${ctp7fw//./_}_GBT.bit
+        echo "CTP7 firmware fw/gem_ctp7_v${ctp7fw//./_}.bit missing, downloading"
+        echo "wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/gem_ctp7_v${ctp7fw//./_}_${nlinks}oh.bit -O fw/gem_ctp7_v${ctp7fw//./_}_${nlinks}oh.bit"
+        wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/gem_ctp7_v${ctp7fw//./_}_${nlinks}oh.bit -O fw/gem_ctp7_v${ctp7fw//./_}_${nlinks}oh.bit
     fi
 
-    echo "ln -sf gem_ctp7_v${ctp7fw//./_}_GBT.bit fw/gem_ctp7.bit"
-    ln -sf gem_ctp7_v${ctp7fw//./_}_GBT.bit fw/gem_ctp7.bit
+    echo "ln -sf fw/gem_ctp7_v${ctp7fw//./_}_${nlinks}oh.bit fw/gem_ctp7.bit"
+    ln -sf fw/gem_ctp7_v${ctp7fw//./_}_${nlinks}oh.bit fw/gem_ctp7.bit
 
     if [ ! -f "xml/gem_amc_top_${ctp7fw//./_}.xml" ]
     then
         echo "CTP7 firmware xml/gem_amc_top_${ctp7fw//./_}.xml missing, downloading"
-        echo "wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/address_table_v${ctp7fw//./_}_GBT.zip"
-        wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/address_table_v${ctp7fw//./_}_GBT.zip
-        echo "unzip address_table_v${ctp7fw//./_}_GBT.zip"
-        unzip address_table_v${ctp7fw//./_}_GBT.zip
+        echo "wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/address_table_v${ctp7fw//./_}.zip"
+        wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/address_table_v${ctp7fw//./_}.zip
+        echo "unzip address_table_v${ctp7fw//./_}.zip"
+        unzip address_table_v${ctp7fw//./_}.zip
         echo "cp address_table_v${ctp7fw//./_}_GBT/gem_amc_top.xml xml/gem_amc_v${ctp7fw//./_}.xml"
-        cp address_table_v${ctp7fw//./_}_GBT/gem_amc_top.xml xml/gem_amc_v${ctp7fw//./_}.xml
+        cp address_table_v${ctp7fw//./_}/gem_amc_top.xml xml/gem_amc_v${ctp7fw//./_}.xml
         echo "rm -rf address_table_v${ctp7fw//./_}_GBT"
-        rm -rf address_table_v${ctp7fw//./_}_GBT
+        rm -rf address_table_v${ctp7fw//./_}
     fi
 
-    echo "ln -sf gem_amc_top_${ctp7fw//./_}.xml xml/gem_amc_top.xml"
-    ln -sf gem_amc_top_${ctp7fw//./_}.xml xml/gem_amc_top.xml
+    echo "ln -sf xml/gem_amc_top_${ctp7fw//./_}.xml xml/gem_amc_top.xml"
+    ln -sf xml/gem_amc_top_${ctp7fw//./_}.xml xml/gem_amc_top.xml
 fi
 
 # create new CTP7 user if requested
