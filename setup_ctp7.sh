@@ -12,6 +12,12 @@ helpstring="Usage: $0 [options] <CTP7 hostname>
 Plese report bugs to
 https://github.com/cms-gem-daq-project/gemctp7user"
 
+if [ -z "$XHAL_ROOT" ]
+then
+    echo "XHAL_ROOT is not set, please get the correct tag of XHAL code and source the setup.sh there. Exiting..."
+    exit
+fi
+
 while getopts "a:c:l:o:x:uh" opts
 do
     case $opts in
@@ -220,11 +226,11 @@ then
     rsync -ach --progress --partial --links bin fw lib oh_fw scripts xml python root@${ctp7host}:/mnt/persistent/gemdaq/
    
     echo "Update LMDB address table on the CTP7, make a new .pickle file and resync xml folder"
-    xhal_root_old=$XHAL_ROOT
-    export XHAL_ROOT=$PWD
+    echo "cp xml/* $XHAL_ROOT/etc/"
+    cp xml/* $XHAL_ROOT/etc/
     echo "python python/reg_interface/reg_interface.py -n ${ctp7host} -e update_lmdb /mnt/persistent/gemdaq/xml/gem_amc_top.xml"
     python python/reg_interface/reg_interface.py -n ${ctp7host} -e update_lmdb /mnt/persistent/gemdaq/xml/gem_amc_top.xml
-    export XHAL_ROOT=$xhal_root_old
+    cp $XHAL_ROOT/etc/gem_amc_top.pickle xml/gem_amc_top.pickle
     rsync -ach --progress --partial --links xml root@${ctp7host}:/mnt/persistent/gemdaq/
 
     echo "Cleaning local temp folders"
