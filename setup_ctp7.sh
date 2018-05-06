@@ -48,33 +48,34 @@ ctp7up=$?
 if [ $ctp7up != 0 ]
 then
     echo "Unable to ping host ${ctp7host}"
-    exit
 fi
 
+echo "Proceeding..."
 # create local links if requested
 if [ -n "${ohfw}" ]
 then
-    # echo "creating links for OH firmware version: ${ohfw}"
+    echo "creating links for OH firmware version: ${ohfw}"
     if [[ ${ohfw} = *"3."* ]]
     then 
         echo "Downloading V3 firmware with tag ${ohfw}"
-        echo "wget https://github.com/cms-gem-daq-project/OptoHybridv3/releases/download/${ohfw}/OH_${ohfw}.tar.gz"
-        wget https://github.com/cms-gem-daq-project/OptoHybridv3/releases/download/${ohfw}/OH_${ohfw}.tar.gz 
+        echo "wget https://github.com/cms-gem-daq-project/OptoHybridv3/releases/download/${ohfw}/OH_20180320_${ohfw}.tar.gz"
+        wget https://github.com/cms-gem-daq-project/OptoHybridv3/releases/download/${ohfw}/OH_20180320_${ohfw}.tar.gz 
         echo "Untar and copy firmware files and xml address table to relevant locations"
+        ohfw="20180320_"${ohfw}
         echo "tar -xvf OH_${ohfw}.tar.gz"
         tar -xvf OH_${ohfw}.tar.gz
         echo "cp OH_${ohfw}/OH_${ohfw}.mcs oh_fw/optohybrid_${ohfw}.mcs"
-        cp OH_${ohfw}/OH_${ohfw}.mcs oh_fw/optohybrid_${ohfw}.mcs
-        echo "cp OH_${ohfw}/OH_${ohfw}.bit oh_fw/optohybrid_${ohfw}.bit"
-        cp OH_${ohfw}/OH_${ohfw}.bit oh_fw/optohybrid_${ohfw}.bit
+        cp OH_${ohfw}/OH-${ohfw//_/-}.mcs oh_fw/optohybrid_${ohfw}.mcs
+        echo "cp OH_${ohfw}/OH-${ohfw//_/-}.bit oh_fw/optohybrid_${ohfw}.bit"
+        cp OH_${ohfw}/OH-${ohfw//_/-}.bit oh_fw/optohybrid_${ohfw}.bit
         echo "cp OH_${ohfw}/optohybrid_registers.xml xml/optohybrid_registers_${ohfw}.xml"
         cp OH_${ohfw}/optohybrid_registers.xml xml/optohybrid_registers_${ohfw}.xml
-        echo "ln -sf oh_fw/optohybrid_${ohfw}.bit oh_fw/optohybrid_top.bit"
-        ln -sf oh_fw/optohybrid_${ohfw}.bit oh_fw/optohybrid_top.bit
-        echo "ln -sf oh_fw/optohybrid_${ohfw}.mcs oh_fw/optohybrid_top.mcs"
-        ln -sf oh_fw/optohybrid_${ohfw}.mcs oh_fw/optohybrid_top.mcs
+        echo "ln -sf optohybrid_${ohfw}.bit oh_fw/optohybrid_top.bit"
+        ln -sf optohybrid_${ohfw}.bit oh_fw/optohybrid_top.bit
+        echo "ln -sf optohybrid_${ohfw}.mcs oh_fw/optohybrid_top.mcs"
+        ln -sf optohybrid_${ohfw}.mcs oh_fw/optohybrid_top.mcs
         echo "ln -sf xml/optohybrid_registers_${ohfw}.mcs oh_fw/optohybrid_registers.xml"
-        ln -sf xml/optohybrid_registers_${ohfw}.mcs oh_fw/optohybrid_registers.xml
+        ln -sf optohybrid_registers_${ohfw}.xml xml/optohybrid_registers.xml
         echo "rm -rf OH_${ohfw}/"
         rm -rf OH_${ohfw}/
         echo "rm -rf OH_${ohfw}.tar.gz"
@@ -112,23 +113,25 @@ then
     fi
 
     echo "ln -sf fw/gem_ctp7_v${ctp7fw//./_}_${nlinks}oh.bit fw/gem_ctp7.bit"
-    ln -sf fw/gem_ctp7_v${ctp7fw//./_}_${nlinks}oh.bit fw/gem_ctp7.bit
+    ln -sf gem_ctp7_v${ctp7fw//./_}_${nlinks}oh.bit fw/gem_ctp7.bit
 
     if [ ! -f "xml/gem_amc_top_${ctp7fw//./_}.xml" ]
     then
         echo "CTP7 firmware xml/gem_amc_top_${ctp7fw//./_}.xml missing, downloading"
-        echo "wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/address_table_v${ctp7fw//./_}.zip"
-        wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/address_table_v${ctp7fw//./_}.zip
-        echo "unzip address_table_v${ctp7fw//./_}.zip"
-        unzip address_table_v${ctp7fw//./_}.zip
-        echo "cp address_table_v${ctp7fw//./_}_GBT/gem_amc_top.xml xml/gem_amc_v${ctp7fw//./_}.xml"
-        cp address_table_v${ctp7fw//./_}/gem_amc_top.xml xml/gem_amc_v${ctp7fw//./_}.xml
-        echo "rm -rf address_table_v${ctp7fw//./_}_GBT"
-        rm -rf address_table_v${ctp7fw//./_}
+        echo "wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/address_table_v${ctp7fw//./_}_${nlinks}oh.zip"
+        wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/address_table_v${ctp7fw//./_}_${nlinks}oh.zip
+        echo "unzip address_table_v${ctp7fw//./_}_${nlinks}oh.zip"
+        unzip address_table_v${ctp7fw//./_}_${nlinks}oh.zip
+        echo "rm address_table_v${ctp7fw//./_}_${nlinks}oh.zip"
+        rm address_table_v${ctp7fw//./_}_${nlinks}oh.zip
+        echo "cp address_table_v_${ctp7fw//./_}/gem_amc_top.xml xml/gem_amc_v${ctp7fw//./_}.xml"
+        cp address_table_v_${ctp7fw//./_}/gem_amc_top.xml xml/gem_amc_v${ctp7fw//./_}.xml
+        echo "rm -rf address_table_v_${ctp7fw//./_}"
+        rm -rf address_table_v_${ctp7fw//./_}
     fi
 
-    echo "ln -sf xml/gem_amc_top_${ctp7fw//./_}.xml xml/gem_amc_top.xml"
-    ln -sf xml/gem_amc_top_${ctp7fw//./_}.xml xml/gem_amc_top.xml
+    echo "ln -sf xml/gem_amc_top_v${ctp7fw//./_}.xml xml/gem_amc_top.xml"
+    ln -sf gem_amc_v${ctp7fw//./_}.xml xml/gem_amc_top.xml
 fi
 
 # create new CTP7 user if requested
@@ -152,50 +155,61 @@ then
     done
 fi
 
+# Download xhal tag
+if [ -n "${xhaltag}" ]
+then
+    echo "Fetching xhal binaries and libraries"
+    res=$(curl -s --head https://github.com/cms-gem-daq-project/xhal/releases/tag/${xhaltag} | head -n 1 | grep "HTTP/1.[01] [23]..")
+    if [ -n "${res}" ]
+    then
+        echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/ipbus -O bin/ipbus"
+        wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/ipbus -O bin/ipbus
+
+        echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/liblog4cplus.so  -O lib/liblog4cplus.so"
+        wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/liblog4cplus.so  -O lib/liblog4cplus.so
+        echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/libxhal_ctp7.so  -O lib/libxhal_ctp7.so"
+        wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/libxhal_ctp7.so  -O lib/libxhal_ctp7.so
+        echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/libxerces-c.so   -O lib/libxerces-c.so"
+        wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/libxerces-c.so   -O lib/libxerces-c.so
+        echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/librwreg_ctp7.so -O lib/librwreg_ctp7.so"
+        wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/librwreg_ctp7.so -O lib/librwreg_ctp7.so
+        echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/liblmdb.so       -O lib/liblmdb.so"
+        wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/liblmdb.so       -O lib/liblmdb.so
+
+        echo "ln -sf librwreg_ctp7.so lib/librwreg.so"
+        ln -sf librwreg_ctp7.so lib/librwreg.so
+        echo "ln -sf libxhal_ctp7.so lib/libxhal.so"
+        ln -sf libxhal_ctp7.so lib/libxhal.so
+        echo "ln -sf libxerces-c.so lib/libxerces-c-3.1.so"
+        ln -sf libxerces-c.so lib/libxerces-c-3.1.so
+        echo "ln -sf liblog4cplus.so lib/liblog4cplus-1.1.so.9"
+        ln -sf liblog4cplus.so lib/liblog4cplus-1.1.so.9
+    else
+        echo "Unable to find specified tag ${xhaltag} in list of xhal releases (https://github.com/cms-gem-daq-project/xhal/releases)"
+        echo "Please verify that the specified tag exists"
+        exit
+    fi
+
+    echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/reg_interface.zip && unzip reg_interface.zip && rm reg_interface.zip"
+    wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/reg_interface.zip
+    unzip reg_interface.zip -d python/
+    rm reg_interface.zip
+fi
+
 # Update CTP7 gemdaq paths
 if [ -n "${update}" ]
 then
     echo "Creating/updating CTP7 gemdaq directory structure"
     echo "ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq"
     ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq
-
-    if [ -n "${xhaltag}" ]
-    then
-        echo "Fetching xhal binaries and libraries"
-        res=$(curl -s --head https://github.com/cms-gem-daq-project/xhal/releases/tag/${xhaltag} | head -n 1 | grep "HTTP/1.[01] [23]..")
-        if [ -n "${res}" ]
-        then
-            echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/ipbus -O bin/ipbus"
-            wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/ipbus -O bin/ipbus
-
-            echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/liblog4cplus.so  -O lib/liblog4cplus.so"
-            wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/liblog4cplus.so  -O lib/liblog4cplus.so
-            echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/libxhal_ctp7.so  -O lib/libxhal_ctp7.so"
-            wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/libxhal_ctp7.so  -O lib/libxhal_ctp7.so
-            echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/libxerces-c.so   -O lib/libxerces-c.so"
-            wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/libxerces-c.so   -O lib/libxerces-c.so
-            echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/librwreg_ctp7.so -O lib/librwreg_ctp7.so"
-            wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/librwreg_ctp7.so -O lib/librwreg_ctp7.so
-            echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/liblmdb.so       -O lib/liblmdb.so"
-            wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/liblmdb.so       -O lib/liblmdb.so
-
-            echo "ln -sf librwreg_ctp7.so lib/librwreg.so"
-            ln -sf librwreg_ctp7.so lib/librwreg.so
-            echo "ln -sf libxerces-c.so lib/libxerces-c-3.1.so"
-            ln -sf libxerces-c.so lib/libxerces-c-3.1.so
-            echo "ln -sf liblog4cplus.so lib/liblog4cplus-1.1.so.9"
-            ln -sf liblog4cplus.so lib/liblog4cplus-1.1.so.9
-        else
-            echo "Unable to find specified tag ${xhaltag} in list of xhal releases (https://github.com/cms-gem-daq-project/xhal/releases)"
-            echo "Please verify that the specified tag exists"
-            exit
-        fi
-
-        echo "wget https://github.com/cms-gem-daq-project/xhal/files/1071017/reg_interface.zip && unzip reg_interface.zip && rm reg_interface.zip"
-        wget https://github.com/cms-gem-daq-project/xhal/files/1071017/reg_interface.zip
-        unzip reg_interface.zip -d python/
-        rm reg_interface.zip
-    fi
+    echo "ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq/address_table.mdb"
+    ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq/address_table.mdb
+    echo "ssh root@${ctp7host} touch /mnt/persistent/gemdaq/address_table.mdb/data.mdb"
+    ssh root@${ctp7host} touch /mnt/persistent/gemdaq/address_table.mdb/data.mdb
+    echo "ssh root@${ctp7host} touch /mnt/persistent/gemdaq/address_table.mdb/lock.mdb"
+    ssh root@${ctp7host} touch /mnt/persistent/gemdaq/address_table.mdb/lock.mdb
+    echo "ssh root@${ctp7host} chmod -R 777 /mnt/persistent/gemdaq/address_table.mdb"
+    ssh root@${ctp7host} chmod -R 777 /mnt/persistent/gemdaq/address_table.mdb
 
     find . -type d -print0 | xargs -0 -n1 chmod a+rx
     find . -type f -print0 | xargs -0 -n1 chmod a+r
@@ -204,6 +218,15 @@ then
 
     echo "rsync -ach --progress --partial --links bin fw lib oh_fw scripts xml python root@${ctp7host}:/mnt/persistent/gemdaq/"
     rsync -ach --progress --partial --links bin fw lib oh_fw scripts xml python root@${ctp7host}:/mnt/persistent/gemdaq/
+   
+    echo "Update LMDB address table on the CTP7, make a new .pickle file and resync xml folder"
+    xhal_root_old=$XHAL_ROOT
+    export XHAL_ROOT=$PWD
+    echo "python python/reg_interface/reg_interface.py -n ${ctp7host} -e update_lmdb /mnt/persistent/gemdaq/xml/gem_amc_top.xml"
+    python python/reg_interface/reg_interface.py -n ${ctp7host} -e update_lmdb /mnt/persistent/gemdaq/xml/gem_amc_top.xml
+    export XHAL_ROOT=$xhal_root_old
+    rsync -ach --progress --partial --links xml root@${ctp7host}:/mnt/persistent/gemdaq/
+
     echo "Cleaning local temp folders"
     rm ./bin/*
     rm ./lib/*
