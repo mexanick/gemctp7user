@@ -18,6 +18,12 @@ then
     exit
 fi
 
+if [ -z "$CTP7_MOD_ROOT" ]
+then
+    echo "CTP7_MOD_ROOT is not set, please get the correct tag of ctp7_modules code and source the setup.sh there. Exiting..."
+    exit
+fi
+
 while getopts "a:c:l:o:x:uh" opts
 do
     case $opts in
@@ -207,15 +213,11 @@ if [ -n "${update}" ]
 then
     echo "Creating/updating CTP7 gemdaq directory structure"
     echo "ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq"
-    ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq
     echo "ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq/address_table.mdb"
-    ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq/address_table.mdb
     echo "ssh root@${ctp7host} touch /mnt/persistent/gemdaq/address_table.mdb/data.mdb"
-    ssh root@${ctp7host} touch /mnt/persistent/gemdaq/address_table.mdb/data.mdb
     echo "ssh root@${ctp7host} touch /mnt/persistent/gemdaq/address_table.mdb/lock.mdb"
-    ssh root@${ctp7host} touch /mnt/persistent/gemdaq/address_table.mdb/lock.mdb
     echo "ssh root@${ctp7host} chmod -R 777 /mnt/persistent/gemdaq/address_table.mdb"
-    ssh root@${ctp7host} chmod -R 777 /mnt/persistent/gemdaq/address_table.mdb
+    ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq && mkdir -p /mnt/persistent/gemdaq/address_table.mdb && touch /mnt/persistent/gemdaq/address_table.mdb/data.mdb && touch /mnt/persistent/gemdaq/address_table.mdb/lock.mdb && chmod -R 777 /mnt/persistent/gemdaq/address_table.mdb
 
     find . -type d -print0 | xargs -0 -n1 chmod a+rx
     find . -type f -print0 | xargs -0 -n1 chmod a+r
@@ -228,8 +230,17 @@ then
     echo "Update LMDB address table on the CTP7, make a new .pickle file and resync xml folder"
     echo "cp xml/* $XHAL_ROOT/etc/"
     cp xml/* $XHAL_ROOT/etc/
+    echo "Upload rpc modules and restart rpcsvc"
+    scp -r $CTP7_MOD_ROOT/lib/*.so root@${ctp7host}:/mnt/persistent/rpcmodules 
+    ssh root@${ctp7host} killall rpcsvc
+    if [ -n "${newuser}" ]
+    then
+        ssh -t ${newuser}@${ctp7host} 'sh -lic "rpcsvc"'
+    else
+        ssh -t texas@${ctp7host} 'sh -lic "rpcsvc"'
+    fi
     echo "python python/reg_interface/reg_interface.py -n ${ctp7host} -e update_lmdb /mnt/persistent/gemdaq/xml/gem_amc_top.xml"
-    python python/reg_interface/reg_interface.py -n ${ctp7host} -e update_lmdb /mnt/persistent/gemdaq/xml/gem_amc_top.xml
+    python $XHAL_ROOT/python/reg_interface/reg_interface.py -n ${ctp7host} -e update_lmdb /mnt/persistent/gemdaq/xml/gem_amc_top.xml
     cp $XHAL_ROOT/etc/gem_amc_top.pickle xml/gem_amc_top.pickle
     rsync -ach --progress --partial --links xml root@${ctp7host}:/mnt/persistent/gemdaq/
 

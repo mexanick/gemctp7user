@@ -12,6 +12,6 @@ export PATH=$PATH:$GEM_PATH/scripts:$GEM_PATH/bin
 export PATH=$GEM_PATH/python/reg_interface:$PATH
 export PATH=$HOME/bin:$PATH
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GEM_PATH/lib
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/mnt/persistent/rpcmodules/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/mnt/persistent/rpcmodules
 
 mesg n

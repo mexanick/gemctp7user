@@ -51,27 +51,27 @@ if [ -n "${reloadctp7fw}" ]
 then
     TASK_DESCRIPTION="Reloading the CTP7 firmware"
     ACTION_MESSAGE="Are you sure you want to reload the CTP7 firmware?"
-    COMMAND="ssh -qt texas@${ctp7host} \"sh -lc 'cold_boot.sh'\""
+    COMMAND="ssh -qt gemuser@${ctp7host} \"sh -lc 'cold_boot.sh'\""
 elif [ -n "${recoverctp7}" ]
 then
     TASK_DESCRIPTION="Recover the CTP7"
     ACTION_MESSAGE="Are you sure you want to recover the CTP7?"
-    COMMAND="ssh -qt texas@${ctp7host} \"sh -lc 'recover.sh'\""
+    COMMAND="ssh -qt gemuser@${ctp7host} \"sh -lc 'recover.sh'\""
 elif [ -n "${restartipbus}" ]
 then
     TASK_DESCRIPTION="Restart the IPBus service on the CTP7"
     ACTION_MESSAGE="Are you sure you want to restart IPBus?"
-    COMMAND="ssh -qt texas@${ctp7host} \"sh -lc 'restart_ipbus.sh'\""
+    COMMAND="ssh -qt gemuser@${ctp7host} \"sh -lc 'restart_ipbus.sh'\""
 elif [ -n "${checkctp7fw}" ]
 then
     TASK_DESCRIPTION="Checking the CTP7 firmware version"
     ACTION_MESSAGE="Are you sure you want to check the CTP7 firmware version?"
-    COMMAND="ssh -qt texas@${ctp7host} \"ls -l /mnt/persistent/gemdaq/fw/gem_ctp7.bit && ls -l /mnt/persistent/gemdaq/xml/gem_amc_top.xml\""
+    COMMAND="ssh -qt gemuser@${ctp7host} \"ls -l /mnt/persistent/gemdaq/fw/gem_ctp7.bit && ls -l /mnt/persistent/gemdaq/xml/gem_amc_top.xml\""
 elif [ -n "${checkuptime}" ]
 then
     TASK_DESCRIPTION="Checking the CTP7 uptime"
     ACTION_MESSAGE="Are you sure you want to check the CTP7 uptime?"
-    COMMAND="ssh -qt texas@${ctp7host} \"uptime\""
+    COMMAND="ssh -qt gemuser@${ctp7host} \"uptime\""
 fi
 
 if [ -n "${COMMAND}" ]
