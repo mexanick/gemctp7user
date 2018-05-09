@@ -116,6 +116,13 @@ fi
 
 if [ -n "${ctp7fw}" ]
 then
+
+    if [[ ${ctp7fw} = *"3."* ]]
+    then
+        ln -sf recover_v3.sh scripts/recover.sh
+    else 
+        ln -sf recover_v2.sh scripts/recover.sh
+    fi
     # echo "creating links for CTP7 firmware version: ${ctpfw}"
     if [ ! -f "fw/gem_ctp7_gem_ctp7_v${ctp7fw//./_}.bit" ]
     then
@@ -141,6 +148,12 @@ then
         echo "rm -rf address_table_v_${ctp7fw//./_}"
         rm -rf address_table_v_${ctp7fw//./_}
     fi
+
+    echo "Download gemloader"
+    echo "wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/gemloader_v${ctp7fw//./_}.zip"
+    wget https://github.com/evka85/GEM_AMC/releases/download/v${ctp7fw}/gemloader_v${ctp7fw//./_}.zip
+    unzip gemloader_v${ctp7fw//./_}.zip
+    rm -rf gemloader_v${ctp7fw//./_}.zip
 
     echo "ln -sf xml/gem_amc_top_v${ctp7fw//./_}.xml xml/gem_amc_top.xml"
     ln -sf gem_amc_v${ctp7fw//./_}.xml xml/gem_amc_top.xml
@@ -225,7 +238,7 @@ then
     find lib -type f -print0 | xargs -0 -n1 chmod a+rx
 
     echo "rsync -ach --progress --partial --links bin fw lib oh_fw scripts xml python root@${ctp7host}:/mnt/persistent/gemdaq/"
-    rsync -ach --progress --partial --links bin fw lib oh_fw scripts xml python root@${ctp7host}:/mnt/persistent/gemdaq/
+    rsync -ach --progress --partial --links bin fw lib oh_fw scripts xml python gemloader root@${ctp7host}:/mnt/persistent/gemdaq/
    
     echo "Update LMDB address table on the CTP7, make a new .pickle file and resync xml folder"
     echo "cp xml/* $XHAL_ROOT/etc/"
@@ -251,4 +264,5 @@ then
     rm ./oh_fw/*
     rm ./python/reg_interface/*
     rm ./xml/*
+    rm ./gemloader
 fi
