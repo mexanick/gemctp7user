@@ -85,7 +85,7 @@ sca.py $OHMASK program-fpga bit $FILE_FW
 
 if [[ $FILE_FW =~ (([0-9a-fA-F]+)\.){3}([Bb]\.) ]]; then
     # OHv3b
-    reg_interface --execute="write GEM_AMC.GEM_SYSTEM.VFAT3.USE_OH_V3B_MAPPING 1"
+    reg_interface.py -e write "GEM_AMC.GEM_SYSTEM.VFAT3.USE_OH_V3B_MAPPING 1"
 else
     # OHv3a
     # Necessary for FW versions pre-dating v3.1.0.B
@@ -104,10 +104,10 @@ else
 fi
 
 # Link reset
-reg_interface --execute="write GEM_AMC.GEM_SYSTEM.CTRL.LINK_RESET 1"
+reg_interface.py -e write "GEM_AMC.GEM_SYSTEM.CTRL.LINK_RESET 1"
 
 # TU invert (forget for which FW versions this is required...)
-#reg_interface --execute="write GEM_AMC.OH.OH0.FPGA.TRIG.CTRL.VFAT17_TU_INVERT 0x6"
+#reg_interface.py -e write "GEM_AMC.OH.OH0.FPGA.TRIG.CTRL.VFAT17_TU_INVERT 0x6"
 
 # Return to original directory
 cd $DIR_ORIG
