@@ -10,6 +10,10 @@ echo "Reconfiguring Virtex7"
 echo ./cold_boot.sh
 ./cold_boot_invert_tx.sh
 
+echo "Set ignore TTC hard resets"
+echo reg_interface.py -e write "GEM_AMC.SLOW_CONTROL.SCA.CTRL.TTC_HARD_RESET_EN 0"
+reg_interface.py -e write "GEM_AMC.SLOW_CONTROL.SCA.CTRL.TTC_HARD_RESET_EN 0"
+
 echo "Load OH FW to the RAM for promless progamming"
 echo "./gemloader_configure.sh"
 source /mnt/persistent/gemdaq/gemloader/gemloader_configure.sh
