@@ -7,7 +7,7 @@ echo cd $(dirname "$0")
 cd $(dirname "$0")
 
 echo "Reconfiguring Virtex7"
-echo ./cold_boot.sh
+echo ./cold_boot_invert_tx.sh
 ./cold_boot_invert_tx.sh
 
 echo "Set ignore TTC hard resets"
