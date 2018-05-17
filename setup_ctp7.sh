@@ -197,12 +197,10 @@ then
         echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/libxerces-c.so   -O lib/libxerces-c.so"
         wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/libxerces-c.so   -O lib/libxerces-c.so
         echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/librwreg_ctp7.so -O lib/librwreg_ctp7.so"
-        wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/librwreg_ctp7.so -O lib/librwreg_ctp7.so
+        wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/librwreg.so -O lib/librwreg.so
         echo "wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/liblmdb.so       -O lib/liblmdb.so"
         wget https://github.com/cms-gem-daq-project/xhal/releases/download/${xhaltag}/liblmdb.so       -O lib/liblmdb.so
 
-        echo "ln -sf librwreg_ctp7.so lib/librwreg.so"
-        ln -sf librwreg_ctp7.so lib/librwreg.so
         echo "ln -sf libxhal_ctp7.so lib/libxhal.so"
         ln -sf libxhal_ctp7.so lib/libxhal.so
         echo "ln -sf libxerces-c.so lib/libxerces-c-3.1.so"
