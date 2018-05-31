@@ -124,6 +124,31 @@ then
         ln -sf recover_v2.sh scripts/recover.sh
     fi
     # echo "creating links for CTP7 firmware version: ${ctpfw}"
+    echo "Download CTP7 release information"
+    echo "wget https://github.com/evka85/gem_amc/releases/download/v${ctp7fw}/release_info_v${ctp7fw//./_}.txt"
+    wget https://github.com/evka85/gem_amc/releases/download/v${ctp7fw}/release_info_v${ctp7fw//./_}.txt
+    declare -A releas_info
+    
+    while IFS="=" read -r key data
+    do 
+      release_info[${key}]=${data}
+    done <"release_info_v${ctp7fw//./_}.txt"
+    echo "Check whether firmware with desired number of OH links is available"
+    num_oh_arr=(${release_info["num_oh"]})
+    ifwa=false
+    for x in ${num_oh_arr[@]}
+    do
+      if [${nlinks} = $x]
+      then
+        ifwa=true
+      fi
+    done
+    if [! $ifwa]
+    then
+      echo "Desired version of firmware is not available. Available options for the number of OH links are: ${num_oh_arr[@]}. Exiting..."
+      exit
+    fi
+
     if [ ! -f "fw/gem_ctp7_gem_ctp7_v${ctp7fw//./_}.bit" ]
     then
         echo "CTP7 firmware fw/gem_ctp7_v${ctp7fw//./_}.bit missing, downloading"
@@ -222,6 +247,20 @@ fi
 # Update CTP7 gemdaq paths
 if [ -n "${update}" ]
 then
+    echo "Check the CTP7 linux image version"
+    echo "ssh gemuser@${ctp7host} cat /mnt/image-persist/build_id"
+    build_id="$(ssh gemuser@eagle64 cat /mnt/image-persist/build_id)"
+    if [[ ! ${release_info["linux_filename"]} = *${build_id}* ]]; then
+      echo "Linux update of the CTP7 is required. Proceeding..."
+      echo "wget https://github.com/evka85/gem_amc/releases/download/v${ctp7fw}/${release_info["linux_filename"]}"
+      wget https://github.com/evka85/gem_amc/releases/download/v${ctp7fw}/${release_info["linux_filename"]}
+      echo "scp ${release_info["linux_filename"]} root@${ctp7host}"
+      scp ${release_info["linux_filename"]} root@${ctp7host}
+      echo "ssh root@${ctp7host} image-update ${release_info["linux_filename"]}"
+      ssh root@${ctp7host} image-update ${release_info["linux_filename"]}
+      echo "Wait 10 seconds"
+      sleep 10
+    fi
     echo "Creating/updating CTP7 gemdaq directory structure"
     echo "ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq"
     echo "ssh root@${ctp7host} mkdir -p /mnt/persistent/gemdaq/address_table.mdb"
