@@ -260,7 +260,7 @@ then
     rm ./lib/*
     rm ./fw/*
     rm ./oh_fw/*
-    rm ./python/reg_interface/*
+    rm -rf ./python/reg_interface
     rm ./xml/*
-    rm ./gemloader
+    rm -rf ./gemloader
 fi
